@@ -1,0 +1,17 @@
+server:
+  port: 80
+spring:
+  application:
+    name: pd-shiro
+  thymeleaf:
+    mode: HTML5
+    prefix: classpath:/web
+    suffix: .html
+    content-type: text/html
+    cache: false
+    encoding: UTF-8
+redis:
+  ip: 192.168.136.130
+  port: 16379
+  timeout: 10000
+  expire: 18000
