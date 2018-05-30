@@ -11,7 +11,7 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static com.pd.security.constants.ShiroConstants.*;
+import static com.pd.security.constants.ShiroConstants.SALT;
 
 /**
  * @author peramdy on 2018/5/18.
@@ -27,6 +27,12 @@ public class MyShiroRealm extends AuthorizingRealm {
         return "myShiroRealm";
     }
 
+    /**
+     * 权限验证
+     *
+     * @param principalCollection
+     * @return
+     */
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
         SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
@@ -40,6 +46,13 @@ public class MyShiroRealm extends AuthorizingRealm {
         return simpleAuthorizationInfo;
     }
 
+    /**
+     * 登录身份验证
+     *
+     * @param authenticationToken
+     * @return
+     * @throws AuthenticationException
+     */
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
         String username = (String) authenticationToken.getPrincipal();

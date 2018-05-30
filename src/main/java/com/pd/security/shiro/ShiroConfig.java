@@ -3,6 +3,7 @@ package com.pd.security.shiro;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.session.mgt.SessionManager;
+import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.crazycake.shiro.RedisCacheManager;
@@ -31,6 +32,12 @@ public class ShiroConfig {
     private Integer expire;
 
 
+    /**
+     * shiro 过滤器
+     *
+     * @param securityManager
+     * @return
+     */
     @Bean
     public ShiroFilterFactoryBean shiroFilter(SecurityManager securityManager) {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
@@ -66,13 +73,14 @@ public class ShiroConfig {
 
 
     /**
-     * 校验账号
+     * 自定义校验账号
      *
      * @return
      */
     @Bean
     public MyShiroRealm myShiroRealm() {
         MyShiroRealm myShiroRealm = new MyShiroRealm();
+        /**设置realm中自定义身份验证**/
         myShiroRealm.setCredentialsMatcher(hashedCredentialsMatcher());
         return myShiroRealm;
     }
@@ -98,6 +106,7 @@ public class ShiroConfig {
     @Bean
     public RedisSessionDAO redisSessionDAO() {
         RedisSessionDAO redisSessionDAO = new RedisSessionDAO();
+        /**设置redisManager,redis相关配置**/
         redisSessionDAO.setRedisManager(redisManager());
         return redisSessionDAO;
     }
@@ -110,17 +119,19 @@ public class ShiroConfig {
     @Bean
     public SessionManager sessionManager() {
         MySessionManager mySessionManager = new MySessionManager();
+        /**设置sessionDao,session存储**/
         mySessionManager.setSessionDAO(redisSessionDAO());
         return mySessionManager;
     }
 
     /**
-     * shiro 缓存管理
+     * shiro (redis)缓存管理
      *
      * @return
      */
     public RedisCacheManager cacheManager() {
         RedisCacheManager redisCacheManager = new RedisCacheManager();
+        /**设置redisManager,redis相关配置**/
         redisCacheManager.setRedisManager(redisManager());
         return redisCacheManager;
     }
@@ -133,24 +144,28 @@ public class ShiroConfig {
     @Bean
     public SecurityManager securityManager() {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
+        /***设置自定义realm***/
         securityManager.setRealm(myShiroRealm());
+        /***设置自定义sessionManager***/
         securityManager.setSessionManager(sessionManager());
+        /***设置自定义cacheManager***/
         securityManager.setCacheManager(cacheManager());
         return securityManager;
     }
 
 
     /**
+     * 添加注解授权
      *
      * @param securityManager
      * @return
      */
-//    @Bean
-//    public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor(SecurityManager securityManager) {
-//        AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor = new AuthorizationAttributeSourceAdvisor();
-//        authorizationAttributeSourceAdvisor.setSecurityManager(securityManager);
-//        return authorizationAttributeSourceAdvisor;
-//    }
+    @Bean
+    public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor(SecurityManager securityManager) {
+        AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor = new AuthorizationAttributeSourceAdvisor();
+        authorizationAttributeSourceAdvisor.setSecurityManager(securityManager);
+        return authorizationAttributeSourceAdvisor;
+    }
 
 
 }

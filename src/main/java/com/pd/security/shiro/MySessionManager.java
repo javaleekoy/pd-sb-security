@@ -15,7 +15,7 @@ import java.io.Serializable;
 public class MySessionManager extends DefaultWebSessionManager {
 
     private static final String AUTHORIZATION = "authorization";
-    private static final String REFERENCED_SESSION_ID_SOURCE = "stateless request";
+    /*private static final String REFERENCED_SESSION_ID_SOURCE = "stateless request";*/
 
     public MySessionManager() {
         super();
@@ -26,7 +26,10 @@ public class MySessionManager extends DefaultWebSessionManager {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         String auth = httpServletRequest.getHeader(AUTHORIZATION);
         if (StringUtils.isNotBlank(auth)) {
-            request.setAttribute(ShiroHttpServletRequest.REFERENCED_SESSION_ID_SOURCE, REFERENCED_SESSION_ID_SOURCE);
+
+            /**设置session状态**/
+            /*request.setAttribute(ShiroHttpServletRequest.REFERENCED_SESSION_ID_SOURCE, REFERENCED_SESSION_ID_SOURCE);*/
+            request.setAttribute(ShiroHttpServletRequest.REFERENCED_SESSION_ID_SOURCE, ShiroHttpServletRequest.URL_SESSION_ID_SOURCE);
             request.setAttribute(ShiroHttpServletRequest.REFERENCED_SESSION_ID, auth);
             request.setAttribute(ShiroHttpServletRequest.REFERENCED_SESSION_ID_IS_VALID, Boolean.TRUE);
             return auth;
