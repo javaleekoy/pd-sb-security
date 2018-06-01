@@ -15,3 +15,13 @@ redis:
   port: 16379
   timeout: 10000
   expire: 18000
+pd:
+  db:
+    url: jdbc:mysql://192.168.136.130:13307/test?useUnicode=true&characterEncoding=utf-8
+    username: root
+    password: 123456
+    driverClass: com.mysql.jdbc.Driver
+    initialSize: 0
+    maxActive: 10
+    minIdle: 0
+    maxWait: 5000

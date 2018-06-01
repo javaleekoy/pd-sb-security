@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -43,11 +46,12 @@ public class ShiroConfig {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
         shiroFilterFactoryBean.setSecurityManager(securityManager);
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<String, String>();
-        filterChainDefinitionMap.put("/shiro/logout", "logout");
+        filterChainDefinitionMap.put("/logout", "logout");
         filterChainDefinitionMap.put("/static/*", "anon");
-        filterChainDefinitionMap.put("/shiro/login", "anon");
+        /*filterChainDefinitionMap.put("/login", "anon");*/
         filterChainDefinitionMap.put("/**", "authc");
         shiroFilterFactoryBean.setLoginUrl("/shiro/index");
+        shiroFilterFactoryBean.setSuccessUrl("/shiro/hello");
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         return shiroFilterFactoryBean;
     }
@@ -165,6 +169,31 @@ public class ShiroConfig {
         AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor = new AuthorizationAttributeSourceAdvisor();
         authorizationAttributeSourceAdvisor.setSecurityManager(securityManager);
         return authorizationAttributeSourceAdvisor;
+    }
+
+
+    public String md5(String str) {
+        try {
+            MessageDigest messageDigest = MessageDigest.getInstance("MD5");
+            byte[] bytes = messageDigest.digest(str.getBytes("UTF-8"));
+            StringBuilder strBuilder = new StringBuilder();
+            for (int i = 0; i < bytes.length; i++) {
+                int temp = 0xff & bytes[i];//TODO:此处为什么添加 0xff & ？
+                String hexString = Integer.toHexString(temp);
+                if (hexString.length() == 1) {//如果是十六进制的0f，默认只显示f，此时要补上0
+                    strBuilder.append("0").append(hexString);
+                } else {
+                    strBuilder.append(hexString);
+                }
+            }
+            System.out.println(strBuilder.toString());
+            return strBuilder.toString();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 

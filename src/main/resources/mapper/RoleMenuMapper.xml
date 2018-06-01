@@ -1,0 +1,6 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pd.security.mapper.RoleMenuMapper">
+    <!-- role 和 menu 关系查询 -->
+</mapper>

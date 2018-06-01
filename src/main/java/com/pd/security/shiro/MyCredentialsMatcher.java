@@ -1,14 +1,13 @@
 package com.pd.security.shiro;
 
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
+
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.ExcessiveAttemptsException;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
+import org.apache.shiro.cache.Cache;
+import org.apache.shiro.cache.ehcache.EhCacheManager;
 
-import java.net.URL;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.pd.security.constants.ShiroConstants.*;
@@ -20,13 +19,13 @@ import static com.pd.security.constants.ShiroConstants.*;
  */
 public class MyCredentialsMatcher extends HashedCredentialsMatcher {
 
-    private Ehcache ehcache;
+
+    private Cache cache;
 
     public MyCredentialsMatcher() {
-        /****初始化ehcache缓存****/
-        URL url = CacheManager.class.getClassLoader().getResource(EHCACHE_XML_PATH);
-        CacheManager cacheManager = CacheManager.newInstance(url);
-        ehcache = cacheManager.getCache(PASSWORD_RETRY_EHCACHE_NAME);
+        EhCacheManager ehCacheManager = new EhCacheManager();
+        ehCacheManager.setCacheManagerConfigFile("classpath:" + EHCACHE_XML_PATH);
+        cache = ehCacheManager.getCache(PASSWORD_RETRY_EHCACHE_NAME);
     }
 
     /**
@@ -41,19 +40,18 @@ public class MyCredentialsMatcher extends HashedCredentialsMatcher {
 
         /****登录密码错误次数严重****/
         String userName = (String) token.getPrincipal();
-        Element element = ehcache.get(userName);
-        if (element == null) {
-            element = new Element(userName, new AtomicInteger(0));
-            ehcache.put(element);
+        Object object = cache.get(userName);
+        if (object == null) {
+            cache.put(userName, new AtomicInteger(0));
         }
-        AtomicInteger atomicInteger = (AtomicInteger) element.getObjectValue();
+        AtomicInteger atomicInteger = (AtomicInteger) cache.get(userName);
         if (atomicInteger.incrementAndGet() > PASSWORD_RETRY_TIME) {
             throw new ExcessiveAttemptsException();
         }
         /***登陆密码严重***/
         boolean matcher = super.doCredentialsMatch(token, info);
         if (matcher) {
-            ehcache.remove(userName);
+            cache.remove(userName);
         }
         return matcher;
     }
