@@ -1,4 +1,4 @@
-package com.pd.security.controller;
+package com.pd.security.web.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

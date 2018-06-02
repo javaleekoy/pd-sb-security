@@ -17,12 +17,12 @@ import static com.pd.security.constants.ShiroConstants.*;
  *         <p>
  *         ehcache 缓存密码登陆错误次数
  */
-public class MyCredentialsMatcher extends HashedCredentialsMatcher {
+public class PdCredentialsMatcher extends HashedCredentialsMatcher {
 
 
     private Cache cache;
 
-    public MyCredentialsMatcher() {
+    public PdCredentialsMatcher() {
         EhCacheManager ehCacheManager = new EhCacheManager();
         ehCacheManager.setCacheManagerConfigFile("classpath:" + EHCACHE_XML_PATH);
         cache = ehCacheManager.getCache(PASSWORD_RETRY_EHCACHE_NAME);

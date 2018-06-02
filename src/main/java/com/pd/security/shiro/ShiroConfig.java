@@ -67,7 +67,7 @@ public class ShiroConfig {
         //hash加密(原生态)
         /*HashedCredentialsMatcher hashedCredentialsMatcher = new HashedCredentialsMatcher();*/
         //hash加密继承HashedCredentialsMatcher，限制了密码错误次数
-        MyCredentialsMatcher hashedCredentialsMatcher = new MyCredentialsMatcher();
+        PdCredentialsMatcher hashedCredentialsMatcher = new PdCredentialsMatcher();
         //加密类型
         hashedCredentialsMatcher.setHashAlgorithmName("md5");
         //散列次数
@@ -82,8 +82,8 @@ public class ShiroConfig {
      * @return
      */
     @Bean
-    public MyShiroRealm myShiroRealm() {
-        MyShiroRealm myShiroRealm = new MyShiroRealm();
+    public PdShiroRealm myShiroRealm() {
+        PdShiroRealm myShiroRealm = new PdShiroRealm();
         /**设置realm中自定义身份验证**/
         myShiroRealm.setCredentialsMatcher(hashedCredentialsMatcher());
         return myShiroRealm;
@@ -122,7 +122,7 @@ public class ShiroConfig {
      */
     @Bean
     public SessionManager sessionManager() {
-        MySessionManager mySessionManager = new MySessionManager();
+        PdSessionManager mySessionManager = new PdSessionManager();
         /**设置sessionDao,session存储**/
         mySessionManager.setSessionDAO(redisSessionDAO());
         return mySessionManager;

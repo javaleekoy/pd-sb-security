@@ -1,6 +1,6 @@
-package com.pd.security.controller;
+package com.pd.security.web.controller;
 
-import com.pd.security.model.UserInfo;
+import com.pd.security.web.dto.UserDto;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 
 /**
@@ -29,8 +30,8 @@ public class ShiroController {
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public String login(Model model, UserInfo userInfo) {
-        UsernamePasswordToken usernamePasswordToken = new UsernamePasswordToken(userInfo.getName(), userInfo.getPassword());
+    public String login(Model model, UserDto userDto, HttpServletRequest request) {
+        UsernamePasswordToken usernamePasswordToken = new UsernamePasswordToken(userDto.getName(), userDto.getPassword(), true);
         try {
             SecurityUtils.getSubject().login(usernamePasswordToken);
         } catch (AuthenticationException e) {
