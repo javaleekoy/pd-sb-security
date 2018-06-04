@@ -46,11 +46,11 @@ public class ShiroConfig {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
         shiroFilterFactoryBean.setSecurityManager(securityManager);
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<String, String>();
-        filterChainDefinitionMap.put("/logout", "logout");
+//        filterChainDefinitionMap.put("/shiro/logout", "logout");
         filterChainDefinitionMap.put("/static/*", "anon");
-        /*filterChainDefinitionMap.put("/login", "anon");*/
+        filterChainDefinitionMap.put("/shiro/login", "authc");
         filterChainDefinitionMap.put("/**", "authc");
-        shiroFilterFactoryBean.setLoginUrl("/shiro/index");
+        shiroFilterFactoryBean.setLoginUrl("/shiro/login");
         shiroFilterFactoryBean.setSuccessUrl("/shiro/hello");
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         return shiroFilterFactoryBean;

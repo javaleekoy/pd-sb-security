@@ -19,8 +19,8 @@ public class UserDto implements Serializable {
     private String phone;
     private String loginIp;
     private Date loginDate;
-    private Integer expired;
-    private Integer disabled;
+    private Integer isExpired;
+    private Integer isDisabled;
     private Integer del;
     private Date createTime;
     private Date updateTime;
@@ -91,20 +91,20 @@ public class UserDto implements Serializable {
         this.loginDate = loginDate;
     }
 
-    public Integer getExpired() {
-        return expired;
+    public Integer getIsExpired() {
+        return isExpired;
     }
 
-    public void setExpired(Integer expired) {
-        this.expired = expired;
+    public void setIsExpired(Integer isExpired) {
+        this.isExpired = isExpired;
     }
 
-    public Integer getDisabled() {
-        return disabled;
+    public Integer getIsDisabled() {
+        return isDisabled;
     }
 
-    public void setDisabled(Integer disabled) {
-        this.disabled = disabled;
+    public void setIsDisabled(Integer isDisabled) {
+        this.isDisabled = isDisabled;
     }
 
     public Integer getDel() {

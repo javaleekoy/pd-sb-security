@@ -60,17 +60,17 @@ public class PdShiroRealm extends AuthorizingRealm {
      */
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
-        PdUsernamePasswordToken token = (PdUsernamePasswordToken) authenticationToken;
+        UsernamePasswordToken token = (UsernamePasswordToken) authenticationToken;
         String username = (String) token.getPrincipal();
         UserDto userDto = userService.queryUserInfo(username);
         if (userDto == null) {
             return null;
         }
-        if (userDto.getDisabled() == 1 || userDto.getDel() == 1) {
+        if (userDto.getIsDisabled() == 1 || userDto.getDel() == 1) {
             throw new LockedAccountException();
         }
         SimpleAuthenticationInfo authenticationInfo = new SimpleAuthenticationInfo(
-                new Principal(userDto, token.isMobileLogin()),
+                new Principal(userDto),
                 userDto.getPassword(),
                 ByteSource.Util.bytes(SALT),
                 getName()
@@ -92,6 +92,13 @@ public class PdShiroRealm extends AuthorizingRealm {
             this.loginName = user.getLoginName();
             this.name = user.getName();
             this.isMobileLogin = isMobileLogin;
+        }
+
+
+        public Principal(UserDto user) {
+            this.id = user.getId();
+            this.loginName = user.getLoginName();
+            this.name = user.getName();
         }
 
 

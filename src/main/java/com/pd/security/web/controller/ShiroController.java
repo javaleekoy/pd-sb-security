@@ -24,16 +24,29 @@ import java.util.Collection;
 public class ShiroController {
 
 
-    @RequestMapping(value = "/index", method = RequestMethod.GET)
+    /**
+     * 登录页面
+     *
+     * @return
+     */
+    @RequestMapping(value = "/login", method = RequestMethod.GET)
     public String index() {
         return "/html/login";
     }
 
+    /**
+     * 登录验证
+     *
+     * @param model
+     * @param userDto
+     * @param request
+     * @return
+     */
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public String login(Model model, UserDto userDto, HttpServletRequest request) {
-        UsernamePasswordToken usernamePasswordToken = new UsernamePasswordToken(userDto.getName(), userDto.getPassword(), true);
+        UsernamePasswordToken token = new UsernamePasswordToken(userDto.getName(), userDto.getPassword());
         try {
-            SecurityUtils.getSubject().login(usernamePasswordToken);
+            SecurityUtils.getSubject().login(token);
         } catch (AuthenticationException e) {
             e.printStackTrace();
             model.addAttribute("error", e.getMessage());

@@ -3,4 +3,32 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pd.security.mapper.UserMapper">
 
+
+    <resultMap id="userResult" type="com.pd.security.model.User">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="login_name" jdbcType="VARCHAR" property="loginName"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="email" jdbcType="VARCHAR" property="email"/>
+        <result column="phone" jdbcType="VARCHAR" property="phone"/>
+        <result column="login_ip" jdbcType="VARCHAR" property="loginIp"/>
+        <result column="login_date" jdbcType="TIMESTAMP" property="loginDate"/>
+        <result column="expired" jdbcType="INTEGER" property="isExpired"/>
+        <result column="disabled" jdbcType="INTEGER" property="isDisabled"/>
+        <result column="del" jdbcType="INTEGER" property="del"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="remarks" jdbcType="VARCHAR" property="remarks"/>
+    </resultMap>
+
+    <select id="queryInfoByLoginName" resultMap="userResult">
+        SELECT
+            *
+        FROM
+            pd_user u
+        WHERE
+            u.login_name = #{loginName}
+    </select>
+
+
 </mapper>
