@@ -139,6 +139,10 @@ public class UserDto implements Serializable {
         this.remark = remark;
     }
 
+    public boolean isAdmin() {
+        return this.id != null && this.id.equals("1");
+    }
+
     public static UserDto newInstance() {
         UserDto dto = new UserDto();
         return dto;

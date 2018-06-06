@@ -1,17 +1,26 @@
 package com.pd.security.shiro;
 
+import com.pd.security.model.Menu;
+import com.pd.security.model.Role;
+import com.pd.security.service.MenuService;
+import com.pd.security.service.RoleService;
 import com.pd.security.service.UserService;
+import com.pd.security.shiro.session.PdRedisSessionDao;
 import com.pd.security.web.dto.UserDto;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
+import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
 
 import static com.pd.security.constants.ShiroConstants.SALT;
 
@@ -23,10 +32,19 @@ public class PdShiroRealm extends AuthorizingRealm {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private MenuService menuService;
+
+    @Autowired
+    private RoleService roleService;
+
+    @Autowired
+    private PdRedisSessionDao pdRedisSessionDao;
+
 
     @Override
     public String getName() {
-        return "myShiroRealm";
+        return "pdShiroRealm";
     }
 
     /**
@@ -38,16 +56,47 @@ public class PdShiroRealm extends AuthorizingRealm {
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
 
-        getAvailablePrincipal(principalCollection);
-
-        SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
-        Principal userInfo = (Principal) principalCollection.getPrimaryPrincipal();
-        /*for (SysRole role : userInfo.getRoles()) {
-            simpleAuthorizationInfo.addRole(role.getRole());
-            for (String permission : role.getPermissions()) {
-                simpleAuthorizationInfo.addStringPermission(permission);
+        Principal principal = (Principal) getAvailablePrincipal(principalCollection);
+        Collection<Session> sessions = pdRedisSessionDao.getActiveSessions(true, principal, SecurityUtils.getSubject().getSession(false));
+        if (sessions.size() > 0) {
+            if (SecurityUtils.getSubject().isAuthenticated()) {
+                for (Session session : sessions) {
+                    pdRedisSessionDao.delete(session);
+                }
+            } else {
+                SecurityUtils.getSubject().logout();
             }
-        }*/
+        }
+
+        UserDto userDto = userService.queryUserInfo(principal.getName());
+        if (userDto == null) {
+            return null;
+        }
+        SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
+
+        /**角色查询**/
+        List<Role> roles = roleService.queryRolesByUserId(userDto.getId());
+        boolean isAdmin = false;
+        for (Role role : roles) {
+            simpleAuthorizationInfo.addRole(role.getName());
+            if (role.getRoleType().equals(1)) {
+                isAdmin = true;
+            }
+        }
+
+        /**权限菜单查询**/
+        List<Menu> menus;
+        if (isAdmin) {
+            menus = menuService.queryAll();
+        } else {
+            menus = menuService.queryMenuByUserId(userDto.getId());
+        }
+        for (Menu menu : menus) {
+            if (StringUtils.isNotBlank(menu.getPermission())) {
+                simpleAuthorizationInfo.addStringPermission(menu.getPermission());
+            }
+        }
+        simpleAuthorizationInfo.addStringPermission("pdAuth");
         return simpleAuthorizationInfo;
     }
 
@@ -80,7 +129,6 @@ public class PdShiroRealm extends AuthorizingRealm {
 
 
     public static class Principal implements Serializable {
-
 
         private Long id;
         private String loginName;

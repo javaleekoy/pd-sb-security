@@ -14,5 +14,9 @@ public abstract class ShiroConstants {
 
     public static final String EHCACHE_XML_PATH = "ehcache/pd-ehcache.xml";
 
+    public static final String SESSION_KEY_PREFIX = "shiro_redis_session_";
+
+    public static final String CACHE_KEY_PREFIX = "shiro_redis_cache_";
+
 
 }

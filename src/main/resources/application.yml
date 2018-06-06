@@ -10,11 +10,6 @@ spring:
     content-type: text/html
     cache: false
     encoding: UTF-8
-redis:
-  ip: 192.168.136.130
-  port: 16379
-  timeout: 10000
-  expire: 18000
 pd:
   db:
     url: jdbc:mysql://192.168.136.130:13307/test?useUnicode=true&characterEncoding=utf-8
@@ -25,3 +20,8 @@ pd:
     maxActive: 10
     minIdle: 0
     maxWait: 5000
+  redis:
+    ip: 192.168.136.130
+    port: 16379
+    timeout: 10000
+    expire: 18000

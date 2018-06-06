@@ -18,8 +18,11 @@ public class UserService extends CrudService<UserMapper, User> {
 
     public UserDto queryUserInfo(String userName) {
         User user = dao.queryInfoByLoginName(userName);
-        UserDto dto = UserDto.newInstance();
-        BeanUtils.copyProperties(user, dto);
+        UserDto dto = null;
+        if (user != null) {
+            dto = UserDto.newInstance();
+            BeanUtils.copyProperties(user, dto);
+        }
         return dto;
     }
 
