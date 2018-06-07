@@ -18,5 +18,11 @@ public abstract class ShiroConstants {
 
     public static final String CACHE_KEY_PREFIX = "shiro_redis_cache_";
 
+    public static final Integer GLOBAL_SESSION_TIMEOUT = 600000;
+
+    public static final String HASH_ALGORITHM_NAME = "md5";
+
+    public static final Integer HASH_ITERATIONS = 2;
+
 
 }

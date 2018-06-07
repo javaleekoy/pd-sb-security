@@ -2,6 +2,7 @@ package com.pd.security.shiro.cache;
 
 import com.pd.security.cache.redis.PdRedisClient;
 import com.pd.security.utils.ToolsUtil;
+import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import org.apache.shiro.cache.Cache;
 import org.apache.shiro.cache.CacheException;
 import redis.clients.jedis.Jedis;
@@ -30,7 +31,10 @@ public class PdRedisCache<K, V> implements Cache<K, V> {
             }
         }*/
         Jedis jedis = PdRedisClient.create();
-        v = (V) jedis.hget(ToolsUtil.getBytes(cacheKeyName), ToolsUtil.getBytes(key));
+        System.out.println(ToolsUtil.getBytes(key));
+        System.out.println(ToolsUtil.getBytes(cacheKeyName));
+        byte[] bytes = jedis.hget(ToolsUtil.getBytes(cacheKeyName), ToolsUtil.getBytes(key));
+        v = (V) ToolsUtil.deserialize(bytes);
         /*if (httpServletRequest != null && v != null) {
             httpServletRequest.setAttribute(cacheKeyName, v);
         }*/

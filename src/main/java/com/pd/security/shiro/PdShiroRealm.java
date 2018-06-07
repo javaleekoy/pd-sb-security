@@ -96,7 +96,6 @@ public class PdShiroRealm extends AuthorizingRealm {
                 simpleAuthorizationInfo.addStringPermission(menu.getPermission());
             }
         }
-        simpleAuthorizationInfo.addStringPermission("pdAuth");
         return simpleAuthorizationInfo;
     }
 

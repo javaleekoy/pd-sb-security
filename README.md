@@ -18,7 +18,8 @@ localhost/shiro/login
 ````
 
 限制登陆时密码输入错误次数
-```text
+
+```java
 依赖jar包
 <!-- shiro-ehcache -->
 <dependency>
@@ -43,7 +44,7 @@ localhost/shiro/login
 
 
 
-继承 HashedCredentialsMatcher 重写 doCredentialsMatch 方法
+//继承 HashedCredentialsMatcher 重写 doCredentialsMatch 方法
 
 public class PdCredentialsMatcher extends HashedCredentialsMatcher {
 
@@ -80,8 +81,9 @@ public class PdCredentialsMatcher extends HashedCredentialsMatcher {
 
 ```
 身份验证和权限验证
-```text
-继承 AuthorizingRealm 重写 doGetAuthorizationInfo(权限) 和 doGetAuthenticationInfo(认证)
+
+```java
+//继承 AuthorizingRealm 重写 doGetAuthorizationInfo(权限) 和 doGetAuthenticationInfo(认证)
 
 @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
@@ -107,7 +109,8 @@ public class PdCredentialsMatcher extends HashedCredentialsMatcher {
      * @throws AuthenticationException
      */
     @Override
-    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
+    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) 
+    throws AuthenticationException {
         UsernamePasswordToken token = (UsernamePasswordToken) authenticationToken;
         String username = (String) token.getPrincipal();
         UserDto userDto = userService.queryUserInfo(username);
@@ -127,9 +130,10 @@ public class PdCredentialsMatcher extends HashedCredentialsMatcher {
     }
 
 ```
+泛型
 
-```text
-dao泛型类
+```java
+//dao泛型类
 public interface CrudDao<T> extends BaseDao {
 
     T get(Long id);
@@ -148,7 +152,7 @@ public interface CrudDao<T> extends BaseDao {
 
 }
 
-model泛型类 
+//model泛型类 
 public class DataModel<T> extends BaseModel<T> {
 
     private Integer del;
@@ -159,7 +163,7 @@ public class DataModel<T> extends BaseModel<T> {
     ......
 }
 
-server泛型类
+//server泛型类
 @Transactional(readOnly = true, rollbackFor = Exception.class)
 public abstract class CrudService<D extends CrudDao<T>, T extends DataModel<T>> extends BaseService {
 
@@ -183,7 +187,7 @@ public abstract class CrudService<D extends CrudDao<T>, T extends DataModel<T>> 
 
 }
 
-example:
+//example:
 
  @Service
  @Transactional(readOnly = true, rollbackFor = Exception.class)
@@ -198,4 +202,86 @@ example:
  
  }
 
+```
+自定义 sessionDao
+```java
+//接口扩展类
+public interface PdSessionDao extends SessionDAO{
+}
+
+//实现类
+public class PdRedisSessionDao extends AbstractSessionDAO implements PdSessionDao {
+}
+
+```
+
+自定义 cacheManager
+```java
+
+//缓存操作类
+public class PdRedisCache<K, V> implements Cache<K, V> {
+}
+
+//缓存管理类
+public class PdRedisCacheManager implements CacheManager {
+}
+```
+shiro非注解授权
+```java
+@Bean
+public ShiroFilterFactoryBean shiroFilter(SecurityManager securityManager) {
+    ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
+    /**不是使用注解标签时可以这样定义标签权限**/
+    filterChainDefinitionMap.put("/user/hello", "perms[pd:hello:view]");
+    return shiroFilterFactoryBean;
+}
+```
+
+shiro注解
+```java
+/**
+ * 开启shiro的注解支持（权限标签）
+ *
+ * @return
+ */
+@Bean
+public DefaultAdvisorAutoProxyCreator defaultAdvisorAutoProxyCreator() {
+    DefaultAdvisorAutoProxyCreator creator = new DefaultAdvisorAutoProxyCreator();
+    creator.setProxyTargetClass(true);
+    return creator;
+}
+
+/**
+ * 使用shiro框架提供的切面类，用于创建代理对象
+ *
+ * @param securityManager
+ * @return
+ */
+@Bean
+public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor(SecurityManager securityManager) {
+    AuthorizationAttributeSourceAdvisor advisor = new AuthorizationAttributeSourceAdvisor();
+    advisor.setSecurityManager(securityManager);
+    return advisor;
+}
+```
+thymeleaf应用shiro标签
+```java
+
+注意thymeleaf-extras-shiro与spring的版本
+<!-- thymeleaf-extras-shiro -->
+<dependency>
+    <groupId>com.github.theborakompanioni</groupId>
+    <artifactId>thymeleaf-extras-shiro</artifactId>
+    <version>1.2.1</version>
+</dependency>
+
+/**
+ * thymeleaf-shiro:thymeleaf支持shiro标签解析
+ *
+ * @return
+ */
+@Bean
+public ShiroDialect getShiroDialect() {
+    return new ShiroDialect();
+}
 ```

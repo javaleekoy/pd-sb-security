@@ -7,11 +7,14 @@ import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
+import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import static com.pd.security.constants.ShiroConstants.*;
 
 /**
  * @author peramdy on 2018/5/18.
@@ -30,13 +33,14 @@ public class ShiroConfig {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
         shiroFilterFactoryBean.setSecurityManager(securityManager);
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<String, String>();
-        filterChainDefinitionMap.put("/*/logout", "logout");
+        filterChainDefinitionMap.put("/logout", "logout");
         filterChainDefinitionMap.put("/static/*", "anon");
-        /*filterChainDefinitionMap.put("/shiro/login", "authc");*/
+        /*不是使用注解标签时可以这样定义标签权限*/
+        /*filterChainDefinitionMap.put("/user/hello", "perms[pd:hello:view]");*/
         filterChainDefinitionMap.put("/**", "authc");
-        shiroFilterFactoryBean.setLoginUrl("/shiro/login");
-        shiroFilterFactoryBean.setSuccessUrl("/shiro/hello");
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
+        shiroFilterFactoryBean.setLoginUrl("/user/login");
+        shiroFilterFactoryBean.setUnauthorizedUrl("/user/unAuth");
         return shiroFilterFactoryBean;
     }
 
@@ -51,9 +55,9 @@ public class ShiroConfig {
         //hash加密继承HashedCredentialsMatcher，限制了密码错误次数
         PdCredentialsMatcher pdCredentialsMatcher = new PdCredentialsMatcher();
         //加密类型
-        pdCredentialsMatcher.setHashAlgorithmName("md5");
+        pdCredentialsMatcher.setHashAlgorithmName(HASH_ALGORITHM_NAME);
         //散列次数
-        pdCredentialsMatcher.setHashIterations(2);
+        pdCredentialsMatcher.setHashIterations(HASH_ITERATIONS);
         return pdCredentialsMatcher;
     }
 
@@ -72,7 +76,7 @@ public class ShiroConfig {
     }
 
     /**
-     * hua
+     * 缓存管理
      *
      * @return
      */
@@ -92,11 +96,6 @@ public class ShiroConfig {
         return pdRedisSessionDao;
     }
 
-    @Bean
-    public ShiroDialect shiroDialect() {
-        return new ShiroDialect();
-    }
-
     /**
      * session 管理
      *
@@ -108,7 +107,7 @@ public class ShiroConfig {
         /**设置sessionDao,session存储**/
         pdSessionManager.setSessionDAO(pdRedisSessionDao());
         /**设置session 过期时间**/
-        pdSessionManager.setGlobalSessionTimeout(60000);
+        pdSessionManager.setGlobalSessionTimeout(GLOBAL_SESSION_TIMEOUT);
         return pdSessionManager;
     }
 
@@ -130,7 +129,19 @@ public class ShiroConfig {
     }
 
     /**
-     * 添加注解授权
+     * 开启shiro的注解支持
+     *
+     * @return
+     */
+    @Bean
+    public DefaultAdvisorAutoProxyCreator defaultAdvisorAutoProxyCreator() {
+        DefaultAdvisorAutoProxyCreator creator = new DefaultAdvisorAutoProxyCreator();
+        creator.setProxyTargetClass(true);
+        return creator;
+    }
+
+    /**
+     * 使用shiro框架提供的切面类，用于创建代理对象
      *
      * @param securityManager
      * @return
@@ -140,6 +151,17 @@ public class ShiroConfig {
         AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor = new AuthorizationAttributeSourceAdvisor();
         authorizationAttributeSourceAdvisor.setSecurityManager(securityManager);
         return authorizationAttributeSourceAdvisor;
+    }
+
+
+    /**
+     * thymeleaf-shiro:thymeleaf支持shiro标签解析
+     *
+     * @return
+     */
+    @Bean
+    public ShiroDialect getShiroDialect() {
+        return new ShiroDialect();
     }
 
 }

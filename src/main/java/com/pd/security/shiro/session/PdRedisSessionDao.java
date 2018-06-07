@@ -67,39 +67,43 @@ public class PdRedisSessionDao extends AbstractSessionDAO implements PdSessionDa
         Set<Session> sessions = new HashSet<Session>();
         Jedis jedis = PdRedisClient.create();
         Map<String, String> map = jedis.hgetAll(SESSION_KEY_PREFIX);
-        for (Map.Entry<String, String> e : map.entrySet()) {
-            if (StringUtils.isNotBlank(e.getKey()) && StringUtils.isNotBlank(e.getValue())) {
-                String[] strArray = StringUtils.split(e.getValue(), "|");
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            if (StringUtils.isNotBlank(entry.getKey()) && StringUtils.isNotBlank(entry.getValue())) {
+                String[] strArray = StringUtils.split(entry.getValue(), "|");
                 if (strArray != null && strArray.length == 3) {
                     SimpleSession simpleSession = new SimpleSession();
-                    simpleSession.setId(e.getKey());
+                    simpleSession.setId(entry.getKey());
                     simpleSession.setAttribute("principalId", strArray[0]);
                     simpleSession.setTimeout(Long.valueOf(strArray[1]));
                     simpleSession.setLastAccessTime(new Date(Long.valueOf(strArray[2])));
-                    simpleSession.validate();
-                    long pastMins = ((System.currentTimeMillis() - Long.valueOf(Long.valueOf(strArray[2]))) / (60 * 30));
-                    boolean isActiveSession = false;
-                    if (includeLeave || pastMins < 3) {
-                        isActiveSession = true;
-                    }
-                    if (principal != null) {
-                        PrincipalCollection pc = (PrincipalCollection) simpleSession.getAttribute(DefaultSubjectContext.PRINCIPALS_SESSION_KEY);
-                        if (principal.toString().equals(pc != null ? pc.getPrimaryPrincipal().toString() : StringUtils.EMPTY)) {
+                    try {
+                        simpleSession.validate();
+                        long pastMins = ((System.currentTimeMillis() - Long.valueOf(Long.valueOf(strArray[2]))) / (60 * 30));
+                        boolean isActiveSession = false;
+                        if (includeLeave || pastMins < 3) {
                             isActiveSession = true;
                         }
+                        if (principal != null) {
+                            PrincipalCollection pc = (PrincipalCollection) simpleSession.getAttribute(DefaultSubjectContext.PRINCIPALS_SESSION_KEY);
+                            if (principal.toString().equals(pc != null ? pc.getPrimaryPrincipal().toString() : StringUtils.EMPTY)) {
+                                isActiveSession = true;
+                            }
+                        }
+                        if (filterSession != null && filterSession.getId().equals(simpleSession.getId())) {
+                            isActiveSession = false;
+                        }
+                        if (isActiveSession) {
+                            sessions.add(simpleSession);
+                        }
+                        /**session 过期删掉**/
+                    } catch (Exception e2) {
+                        jedis.hdel(SESSION_KEY_PREFIX, entry.getKey());
                     }
-                    if (filterSession != null && filterSession.getId().equals(simpleSession.getId())) {
-                        isActiveSession = false;
-                    }
-                    if (isActiveSession) {
-                        sessions.add(simpleSession);
-                    }
-
                 } else {
-                    jedis.hdel(SESSION_KEY_PREFIX, e.getKey());
+                    jedis.hdel(SESSION_KEY_PREFIX, entry.getKey());
                 }
-            } else if (StringUtils.isNotBlank(e.getKey())) {
-                jedis.hdel(SESSION_KEY_PREFIX, e.getKey());
+            } else if (StringUtils.isNotBlank(entry.getKey())) {
+                jedis.hdel(SESSION_KEY_PREFIX, entry.getKey());
             }
         }
         jedis.close();

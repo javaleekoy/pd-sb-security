@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org "
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8" http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>hello</title>
+</head>
+<body>
+
+<span shiro:principal=""></span>
+<br/>
+<a shiro:authenticated="" href="http://www.baidu.com">直接百度啦</a>
+<span shiro:hasPermission="pd:hello:view">
+  <p th:text="'hello！'+${name}+'！'"></p>
+</span>
+</body>
+</html>
