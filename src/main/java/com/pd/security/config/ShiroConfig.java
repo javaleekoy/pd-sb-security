@@ -1,6 +1,9 @@
-package com.pd.security.shiro;
+package com.pd.security.config;
 
 import at.pollux.thymeleaf.shiro.dialect.ShiroDialect;
+import com.pd.security.shiro.PdCredentialsMatcher;
+import com.pd.security.shiro.PdSessionManager;
+import com.pd.security.shiro.PdShiroRealm;
 import com.pd.security.shiro.cache.PdRedisCacheManager;
 import com.pd.security.shiro.session.PdRedisSessionDao;
 import org.apache.shiro.mgt.SecurityManager;
@@ -55,7 +58,7 @@ public class ShiroConfig {
         //hash加密继承HashedCredentialsMatcher，限制了密码错误次数
         PdCredentialsMatcher pdCredentialsMatcher = new PdCredentialsMatcher();
         //加密类型
-        pdCredentialsMatcher.setHashAlgorithmName(HASH_ALGORITHM_NAME);
+        pdCredentialsMatcher.setHashAlgorithmName(HASH_ALGORITHM_MD5);
         //散列次数
         pdCredentialsMatcher.setHashIterations(HASH_ITERATIONS);
         return pdCredentialsMatcher;

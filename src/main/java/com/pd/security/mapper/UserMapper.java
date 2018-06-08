@@ -12,7 +12,7 @@ public interface UserMapper extends CrudDao<User> {
     /**
      * 查询用户信息
      *
-     * @param loginName
+     * @param loginName 登录名
      * @return
      */
     User queryInfoByLoginName(@Param("loginName") String loginName);

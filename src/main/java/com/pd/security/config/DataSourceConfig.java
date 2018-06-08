@@ -1,4 +1,4 @@
-package com.pd.security.datasource;
+package com.pd.security.config;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -23,6 +23,9 @@ import static com.pd.security.constants.DataSourceConstants.*;
 @MapperScan("com.pd.security.mapper")
 public class DataSourceConfig implements EnvironmentAware {
 
+    /**
+     * 获取配置属性
+     */
     private RelaxedPropertyResolver relaxedPropertyResolver;
 
     @Override
@@ -30,6 +33,11 @@ public class DataSourceConfig implements EnvironmentAware {
         this.relaxedPropertyResolver = new RelaxedPropertyResolver(environment, DB_PREFIX);
     }
 
+    /**
+     * 创建dataSource
+     *
+     * @return
+     */
     @Bean
     public DataSource dataSource() {
         DruidDataSource dataSource = new DruidDataSource();
@@ -44,6 +52,11 @@ public class DataSourceConfig implements EnvironmentAware {
         return dataSource;
     }
 
+    /**
+     * 创建sessionFactory
+     *
+     * @return
+     */
     @Bean
     public SqlSessionFactory sqlSessionFactory() {
         SqlSessionFactory sqlSessionFactory = null;

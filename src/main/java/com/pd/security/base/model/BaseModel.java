@@ -10,8 +10,14 @@ import java.util.Map;
  */
 public abstract class BaseModel<T> implements Serializable {
 
+    /**
+     * 主键
+     */
     protected Long id;
 
+    /**
+     * 额外sql属性
+     */
     protected Map<String, String> sqlMap;
 
 

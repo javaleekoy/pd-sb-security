@@ -9,9 +9,24 @@ import java.util.Date;
  */
 public class DataModel<T> extends BaseModel<T> {
 
+    /**
+     * 删除状态
+     */
     private Integer del;
+
+    /**
+     * 创建时间
+     */
     private Date createTime;
+
+    /**
+     * 更新时间
+     */
     private Date updateTime;
+
+    /**
+     * 备注
+     */
     private String remark;
 
     public Integer getDel() {

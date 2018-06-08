@@ -5,13 +5,29 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 /**
  * @author peramdy on 2018/6/2.
+ *         菜单实体
  */
 public class Menu extends DataModel<Menu> {
 
+    /**
+     * 父菜单Id
+     */
     private Long parentId;
+    /**
+     * 父菜单Ids
+     */
     private String parentIds;
+    /**
+     * 菜单名称
+     */
     private String name;
+    /**
+     * 菜单跳转链接
+     */
     private String href;
+    /**
+     * 权限标识
+     */
     private String permission;
 
 

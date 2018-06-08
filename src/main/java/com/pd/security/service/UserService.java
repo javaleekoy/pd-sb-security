@@ -16,6 +16,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true, rollbackFor = Exception.class)
 public class UserService extends CrudService<UserMapper, User> {
 
+    /**
+     * 根据用户名查询
+     *
+     * @param userName
+     * @return
+     */
     public UserDto queryUserInfo(String userName) {
         User user = dao.queryInfoByLoginName(userName);
         UserDto dto = null;

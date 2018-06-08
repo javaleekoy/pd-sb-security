@@ -13,6 +13,12 @@ import java.util.List;
 @Service
 public class RoleService extends CrudService<RoleMapper, Role> {
 
+    /**
+     * 根据用户Id查询
+     *
+     * @param userId 用户Id
+     * @return
+     */
     public List<Role> queryRolesByUserId(Long userId) {
         return dao.queryRolesByUserId(userId);
     }

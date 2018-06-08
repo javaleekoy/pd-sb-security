@@ -10,14 +10,41 @@ import java.util.Date;
  */
 public class User extends DataModel<User> {
 
+    /**
+     * 登录名
+     */
     private String loginName;
+    /**
+     * 用户名
+     */
     private String name;
+    /**
+     * 密码
+     */
     private String password;
+    /**
+     * 邮箱
+     */
     private String email;
+    /**
+     * 手机
+     */
     private String phone;
+    /**
+     * 登录IP
+     */
     private String loginIp;
+    /**
+     * 最后一次登陆时间
+     */
     private Date loginDate;
+    /**
+     * 是否过期
+     */
     private Integer isExpired;
+    /**
+     * 是否可用
+     */
     private Integer isDisabled;
 
 

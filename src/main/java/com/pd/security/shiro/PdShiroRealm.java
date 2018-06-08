@@ -1,5 +1,6 @@
 package com.pd.security.shiro;
 
+import com.pd.security.exception.PdException;
 import com.pd.security.model.Menu;
 import com.pd.security.model.Role;
 import com.pd.security.service.MenuService;
@@ -26,6 +27,7 @@ import static com.pd.security.constants.ShiroConstants.SALT;
 
 /**
  * @author peramdy on 2018/5/18.
+ *         授权认证
  */
 public class PdShiroRealm extends AuthorizingRealm {
 
@@ -85,15 +87,21 @@ public class PdShiroRealm extends AuthorizingRealm {
         }
 
         /**权限菜单查询**/
-        List<Menu> menus;
-        if (isAdmin) {
-            menus = menuService.queryAll();
-        } else {
-            menus = menuService.queryMenuByUserId(userDto.getId());
+        List<Menu> menus = null;
+        try {
+            if (isAdmin) {
+                menus = menuService.queryAll();
+            } else {
+                menus = menuService.queryMenuByUserId(userDto.getId());
+            }
+        } catch (PdException e) {
+            e.printStackTrace();
         }
-        for (Menu menu : menus) {
-            if (StringUtils.isNotBlank(menu.getPermission())) {
-                simpleAuthorizationInfo.addStringPermission(menu.getPermission());
+        if (menus != null) {
+            for (Menu menu : menus) {
+                if (StringUtils.isNotBlank(menu.getPermission())) {
+                    simpleAuthorizationInfo.addStringPermission(menu.getPermission());
+                }
             }
         }
         return simpleAuthorizationInfo;

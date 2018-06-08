@@ -11,6 +11,12 @@ import java.util.List;
  */
 public interface RoleMapper extends CrudDao<Role> {
 
-    public List<Role> queryRolesByUserId(@Param("userId") Long userId);
+    /**
+     * 根据用户Id查询
+     *
+     * @param userId
+     * @return
+     */
+    List<Role> queryRolesByUserId(@Param("userId") Long userId);
 
 }

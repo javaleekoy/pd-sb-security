@@ -1,5 +1,6 @@
 package com.pd.security.spring;
 
+import com.pd.security.exception.PdException;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.ApplicationContext;
@@ -35,11 +36,18 @@ public class PdSpringContextHolder implements ApplicationContextAware, Disposabl
     }
 
 
+    /**
+     * @throws Exception
+     */
     @Override
-    public void destroy() throws Exception {
+    public void destroy() throws PdException {
         PdSpringContextHolder.clearHolder();
     }
 
+    /**
+     * @param applicationContext
+     * @throws BeansException
+     */
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         PdSpringContextHolder.applicationContext = applicationContext;

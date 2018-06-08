@@ -8,9 +8,16 @@ import redis.clients.jedis.Jedis;
  * @author peramdy on 2018/6/6.
  */
 public class PdRedisClient {
-
+    /**
+     * 获取redis配置类
+     */
     private static PdRedisConfig pdRedisConfig = PdSpringContextHolder.getBean(PdRedisConfig.class);
 
+    /**
+     * 创建jedis
+     *
+     * @return
+     */
     public static Jedis create() {
         JedisBuilder jedisBuilder = JedisBuilder.getInstance();
         jedisBuilder.setHost(pdRedisConfig.getIp());

@@ -21,6 +21,13 @@ public class PdSessionManager extends DefaultWebSessionManager {
         super();
     }
 
+    /**
+     * 获取session
+     *
+     * @param request
+     * @param response
+     * @return
+     */
     @Override
     protected Serializable getSessionId(ServletRequest request, ServletResponse response) {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
@@ -36,7 +43,6 @@ public class PdSessionManager extends DefaultWebSessionManager {
         }
         return super.getSessionId(request, response);
     }
-
 
 
 }

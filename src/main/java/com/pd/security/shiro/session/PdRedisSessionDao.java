@@ -2,6 +2,7 @@ package com.pd.security.shiro.session;
 
 import com.pd.security.cache.redis.PdRedisClient;
 import com.pd.security.utils.ToolsUtil;
+import com.pd.spring.exception.PdException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.session.UnknownSessionException;
@@ -23,6 +24,12 @@ import static com.pd.security.constants.ShiroConstants.SESSION_KEY_PREFIX;
 @Component
 public class PdRedisSessionDao extends AbstractSessionDAO implements PdSessionDao {
 
+    /**
+     * 更新session
+     *
+     * @param session
+     * @throws UnknownSessionException
+     */
     @Override
     public void update(Session session) throws UnknownSessionException {
         if (session == null || session.getId() == null) {
@@ -41,6 +48,11 @@ public class PdRedisSessionDao extends AbstractSessionDAO implements PdSessionDa
         jedis.close();
     }
 
+    /**
+     * 删除session
+     *
+     * @param session
+     */
     @Override
     public void delete(Session session) {
         if (session == null || session.getId() == null) {
@@ -52,65 +64,98 @@ public class PdRedisSessionDao extends AbstractSessionDAO implements PdSessionDa
         jedis.close();
     }
 
+    /**
+     * 获取session集合
+     *
+     * @return
+     */
     @Override
     public Collection<Session> getActiveSessions() {
         return getActiveSession(true);
     }
 
+    /**
+     * 获取session集合
+     *
+     * @param includeLeave
+     * @return
+     */
     @Override
     public Collection<Session> getActiveSession(boolean includeLeave) {
         return getActiveSessions(includeLeave, null, null);
     }
 
+    /**
+     * 获取session集合
+     *
+     * @param includeLeave
+     * @param principal
+     * @param filterSession
+     * @return
+     */
     @Override
     public Collection<Session> getActiveSessions(boolean includeLeave, Object principal, Session filterSession) {
         Set<Session> sessions = new HashSet<Session>();
-        Jedis jedis = PdRedisClient.create();
-        Map<String, String> map = jedis.hgetAll(SESSION_KEY_PREFIX);
-        for (Map.Entry<String, String> entry : map.entrySet()) {
-            if (StringUtils.isNotBlank(entry.getKey()) && StringUtils.isNotBlank(entry.getValue())) {
-                String[] strArray = StringUtils.split(entry.getValue(), "|");
-                if (strArray != null && strArray.length == 3) {
-                    SimpleSession simpleSession = new SimpleSession();
-                    simpleSession.setId(entry.getKey());
-                    simpleSession.setAttribute("principalId", strArray[0]);
-                    simpleSession.setTimeout(Long.valueOf(strArray[1]));
-                    simpleSession.setLastAccessTime(new Date(Long.valueOf(strArray[2])));
-                    try {
-                        simpleSession.validate();
-                        long pastMins = ((System.currentTimeMillis() - Long.valueOf(Long.valueOf(strArray[2]))) / (60 * 30));
-                        boolean isActiveSession = false;
-                        if (includeLeave || pastMins < 3) {
-                            isActiveSession = true;
-                        }
-                        if (principal != null) {
-                            PrincipalCollection pc = (PrincipalCollection) simpleSession.getAttribute(DefaultSubjectContext.PRINCIPALS_SESSION_KEY);
-                            if (principal.toString().equals(pc != null ? pc.getPrimaryPrincipal().toString() : StringUtils.EMPTY)) {
+        Jedis jedis = null;
+        try {
+            jedis = PdRedisClient.create();
+            Map<String, String> map = jedis.hgetAll(SESSION_KEY_PREFIX);
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                if (StringUtils.isNotBlank(entry.getKey()) && StringUtils.isNotBlank(entry.getValue())) {
+                    String[] strArray = StringUtils.split(entry.getValue(), "|");
+                    if (strArray != null && strArray.length == 3) {
+                        SimpleSession simpleSession = new SimpleSession();
+                        simpleSession.setId(entry.getKey());
+                        simpleSession.setAttribute("principalId", strArray[0]);
+                        simpleSession.setTimeout(Long.valueOf(strArray[1]));
+                        simpleSession.setLastAccessTime(new Date(Long.valueOf(strArray[2])));
+                        try {
+                            simpleSession.validate();
+                            long pastMins = ((System.currentTimeMillis() - Long.valueOf(Long.valueOf(strArray[2]))) / (60 * 30));
+                            boolean isActiveSession = false;
+                            if (includeLeave || pastMins < 3) {
                                 isActiveSession = true;
                             }
+                            if (principal != null) {
+                                PrincipalCollection pc = (PrincipalCollection) simpleSession.getAttribute(DefaultSubjectContext.PRINCIPALS_SESSION_KEY);
+                                if (principal.toString().equals(pc != null ? pc.getPrimaryPrincipal().toString() : StringUtils.EMPTY)) {
+                                    isActiveSession = true;
+                                }
+                            }
+                            if (filterSession != null && filterSession.getId().equals(simpleSession.getId())) {
+                                isActiveSession = false;
+                            }
+                            if (isActiveSession) {
+                                sessions.add(simpleSession);
+                            }
+                            /**session 过期删掉**/
+                        } catch (Exception e2) {
+                            jedis.hdel(SESSION_KEY_PREFIX, entry.getKey());
                         }
-                        if (filterSession != null && filterSession.getId().equals(simpleSession.getId())) {
-                            isActiveSession = false;
-                        }
-                        if (isActiveSession) {
-                            sessions.add(simpleSession);
-                        }
-                        /**session 过期删掉**/
-                    } catch (Exception e2) {
+                    } else {
                         jedis.hdel(SESSION_KEY_PREFIX, entry.getKey());
                     }
-                } else {
+                } else if (StringUtils.isNotBlank(entry.getKey())) {
                     jedis.hdel(SESSION_KEY_PREFIX, entry.getKey());
                 }
-            } else if (StringUtils.isNotBlank(entry.getKey())) {
-                jedis.hdel(SESSION_KEY_PREFIX, entry.getKey());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (jedis == null) {
+                jedis.close();
             }
         }
-        jedis.close();
         return sessions;
     }
 
 
+    /**
+     * 创建session
+     *
+     * @param session
+     * @return
+     */
     @Override
     protected Serializable doCreate(Session session) {
         Serializable sessionId = this.generateSessionId(session);
@@ -119,6 +164,12 @@ public class PdRedisSessionDao extends AbstractSessionDAO implements PdSessionDa
         return sessionId;
     }
 
+    /**
+     * 读取session
+     *
+     * @param sessionId
+     * @return
+     */
     @Override
     protected Session doReadSession(Serializable sessionId) {
         Session session = null;
@@ -127,14 +178,29 @@ public class PdRedisSessionDao extends AbstractSessionDAO implements PdSessionDa
         if (session != null) {
             return session;
         }*/
-        Jedis jedis = PdRedisClient.create();
-        byte[] sessionBytes = jedis.get(ToolsUtil.getBytes(SESSION_KEY_PREFIX + sessionId));
-        session = (Session) ToolsUtil.deserialize(sessionBytes);
-        jedis.close();
+        Jedis jedis = null;
+        try {
+            jedis = PdRedisClient.create();
+            byte[] sessionBytes = jedis.get(ToolsUtil.getBytes(SESSION_KEY_PREFIX + sessionId));
+            session = (Session) ToolsUtil.deserialize(sessionBytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (jedis == null) {
+                jedis.close();
+            }
+        }
         return session;
     }
 
 
+    /**
+     * 读取session
+     *
+     * @param sessionId
+     * @return
+     * @throws UnknownSessionException
+     */
     @Override
     public Session readSession(Serializable sessionId) throws UnknownSessionException {
         return super.readSession(sessionId);

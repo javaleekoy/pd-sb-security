@@ -12,8 +12,19 @@ import java.util.List;
  */
 public interface MenuMapper extends CrudDao<Menu> {
 
+    /**
+     * 查询所有
+     *
+     * @return
+     */
     List<Menu> queryAll();
 
+    /**
+     * 根据用户Id查询
+     *
+     * @param userId 用户Id
+     * @return
+     */
     List<Menu> queryMenuByUserId(@Param("userId") Long userId);
 
 }

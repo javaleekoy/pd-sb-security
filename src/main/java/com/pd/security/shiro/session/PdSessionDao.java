@@ -12,6 +12,7 @@ public interface PdSessionDao extends SessionDAO {
 
 
     /**
+     * 获取session集合
      *
      * @param includeLeave
      * @return
@@ -20,6 +21,7 @@ public interface PdSessionDao extends SessionDAO {
 
 
     /**
+     * 获取session集合
      *
      * @param includeLeave
      * @param principal

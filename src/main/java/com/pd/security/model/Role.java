@@ -8,8 +8,17 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
  */
 public class Role extends DataModel<Role> {
 
+    /**
+     * 名称
+     */
     private String name;
+    /**
+     * 角色类型
+     */
     private Integer roleType;
+    /**
+     * 是否可用
+     */
     private Integer disable;
 
 

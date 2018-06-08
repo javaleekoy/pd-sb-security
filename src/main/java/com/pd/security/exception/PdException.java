@@ -2,6 +2,7 @@ package com.pd.security.exception;
 
 /**
  * @author peramdy on 2018/6/6.
+ *
  */
 public class PdException extends Exception {
 

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * @author peramdy on 2018/6/6.
+ *         获取配置文件中的属性值
  */
 @Component
 @ConfigurationProperties(prefix = "pd.redis")
